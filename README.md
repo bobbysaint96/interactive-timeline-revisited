@@ -1,2 +1,2 @@
 # interactive-timeline-revisited
-Revisiting an IMM project, improving the readability &amp; modularity of my code.
+Revisiting an IMM project, converted from OpenProcessing (JS file & UI) to a proper web application. Cleaning up the code a bit too.
