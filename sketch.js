@@ -1,13 +1,13 @@
-let baseMap; // Stores empty map with oceans
-let timelineUI; // Stores timeline layer with year numbers and markings
+let baseMap; 													// Stores empty map with oceans
+let timelineUI; 												// Stores timeline layer with year numbers and markings
 let BC3500, BC2500, BC1500, BC1000, BC500, BC200, BC30, AD200, AD500, AD750, AD979, AD1215, AD1453; // variables for storing time period images
-let timePeriod; // holds current image year image (temporarily holds BC3500, BC2500, BC1500...)
-let timePeriodNum; // holds the current time period the switch statement should use for output, with 3500 BC starting as zero (0,1,2,3...)
-let timelineX, timelineY, timelineInterval, clickboxSize; // holds placement values for timeline clickboxes
-let isWide; // used for logic statements to test if screen is taller/wider than 1920x1080
-let wideAspectScaler, tallAspectScaler; // multipliers attached to draw functions that adjust image width/height & sprite x/y to fit inside of windows
-let baseAspect; // variable used by aspectScaler(); to store whether to use windowWidth or windowHeight in initial scaling
-let contentWidth, contentHeight; //variables used to display the physical dimensions of scaled content
+let timePeriod; 												// holds current image year image (temporarily holds BC3500, BC2500, BC1500...)
+let timePeriodNum; 												// holds the current time period the switch statement should use for output, with 3500 BC starting as zero (0,1,2,3...)
+let timelineX, timelineY, timelineInterval, clickboxSize; 		// holds placement values for timeline clickboxes
+let isWide; 													// used for logic statements to test if screen is taller/wider than 1920x1080
+let wideAspectScaler, tallAspectScaler; 						// multipliers attached to draw functions that adjust image width/height & sprite x/y to fit inside of windows
+let baseAspect; 												// variable used by aspectScaler(); to store whether to use windowWidth or windowHeight in initial scaling
+let contentWidth, contentHeight; 								//variables used to display the physical dimensions of scaled content
 
 // Loads images into permanent variables
 function preload() {
@@ -24,171 +24,83 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	imageMode(CENTER);
 	rectMode(CENTER);
-	checkAspectRatio(); 								//sets isWide to true/false based on window size
-	aspectScaler(); 										//sets variables wideAspectScaler, tallAspectScaler, and baseAspect
-	contentSize();											//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
+	checkAspectRatio(); 														//sets isWide to true/false based on window size
+	aspectScaler(); 															//sets variables wideAspectScaler, tallAspectScaler, and baseAspect
+	contentSize();																//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
 	
-	timePeriodClickBoxes = new Group(); // Group for time period clickboxes along timeline
-	textBoxes = new Group();						// Group for all text boxes, used by removeText to wipe entire sprite group
+	timePeriodClickBoxes = new Group(); 										// Group for time period clickboxes along timeline
+	textBoxes = new Group();													// Group for all text boxes, used by removeText to wipe entire sprite group
 	
-	timePeriodNum = 0; 									// Sets time period to initial state (3500BC)
-	timePeriod = BC3500; 								// sets initial image to (BC3500)
+	timePeriodNum = 0; 															// Sets time period to initial state (3500BC)
+	timePeriod = BC3500; 														// sets initial image to (BC3500)
 	
 	console.log("isWide = " + isWide);																// information on aspect ratio relative to 1920x1080p
 	console.log("window: " +windowWidth+ "x" +windowHeight);					// gives device browser, image, and device dimensions
-	console.log("image: " +timePeriod.width+ "x" +timePeriod.height);	// windowWidth shows effective usable window space, timeperiod.width shows image base scaling, displaywidth shows width of screen overall
+	console.log("image: " +timePeriod.width+ "x" +timePeriod.height);			// windowWidth shows effective usable window space, timeperiod.width shows image base scaling, displaywidth shows width of screen overall
 	console.log("screen: " +displayWidth+ "x" +displayHeight); 
 	
-	timelineX = 0.1562;									//variable setting intial timeline X pos
-	timelineY = 0.895; 									//variable setting initial timeline Y pos
-	timelineInterval = 0.0578; 					//variable used to space out timeline
-	clickboxSize = 0.04;								//Size of clickboxes
+	timelineX = 0.1562;															//variable setting intial timeline X pos
+	timelineY = 0.895; 															//variable setting initial timeline Y pos
+	timelineInterval = 0.0578; 													//variable used to space out timeline
+	clickboxSize = 0.04;														//Size of clickboxes
 	
-	generateTimelineDetection();				//generates timeline sprites & calls for text box creation
-	text3500BC();												// draws initial text boxes	
+	generateTimelineDetection();												//generates timeline sprites & calls for text box creation
+	text3500BC();																// draws initial text boxes	
 }
 
-function draw() { // Runs Constantly
-	//contentSize(); //could be used resizing dynamically windowResized()
-	mapStateSetter(timePeriodNum); // Sets images and dialogues
-	
-	background(0); // Clears previous image states & cursor trail
-	drawMapsWithAspectRatio(); // Determines screen aspect ratio and draws map + timeline + countries
-	
-
-	cursorTracking(); // shows cursor with transparent highlight
-	
-	//drawSprites();								// use for displaying clickboxes
+function draw() { 																// Runs Constantly
+	mapStateSetter(timePeriodNum); 												// Sets images and dialogues
+	background(0); 																// Clears previous image states & cursor trail
+	drawMapsWithAspectRatio(); 													// Determines screen aspect ratio and draws map + timeline + countries
+	cursorTracking(); 															// shows cursor with transparent highlight
+	//drawSprites();															// used for displaying clickboxes
 }
 
 // -------------------------------------------------------- Call Functions ---------------------------------------------------
 
 //could these have the same name with different number inside () to be used as a loop
+
+function generateClickbox(x, y, z) {
+	sprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(x), ((windowHeight - (contentHeight))/2) + (contentHeight *y), contentWidth * clickboxSize, contentWidth * clickboxSize);
+	textBoxes.add(sprite);
+	sprite.mouseActive = true;
+	sprite.onMouseReleased = function() {
+		console.log(z);
+		window.open(z);
+	}
+}
+
 function text3500BC() {
-	egypt3500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.273), ((windowHeight - (contentHeight))/2) + (contentHeight *.6), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(egypt3500BCsprite);
-	egypt3500BCsprite.mouseActive = true;
-	egypt3500BCsprite.onMouseReleased = function() {
-		console.log("Nile Valley Farmers 3500BC");
-		window.open("https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
-	}
-	akkadian3500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.505), ((windowHeight - (contentHeight))/2) + (contentHeight *.33), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(akkadian3500BCsprite);
-	akkadian3500BCsprite.mouseActive = true;
-	akkadian3500BCsprite.onMousePressed = function() {
-		console.log("Akkadian Empire 3500BC");
-		window.open("https://en.wikipedia.org/wiki/Akkadian_Empire");
-	}
-	sumer3500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.52), ((windowHeight - (contentHeight))/2) + (contentHeight *.405), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(sumer3500BCsprite);
-	sumer3500BCsprite.mouseActive = true;
-	sumer3500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Sumer#Uruk_period");
-	}
+	generateClickbox(.273, .6, "https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
+	generateClickbox(.505,.33,"https://en.wikipedia.org/wiki/Akkadian_Empire");
+	generateClickbox(.52,.405,"https://en.wikipedia.org/wiki/Sumer#Uruk_period");
 }
 function text2500BC() {
-	sumer2500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.47), ((windowHeight - (contentHeight))/2) + (contentHeight *.31), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(sumer2500BCsprite);
-	sumer2500BCsprite.mouseActive = true;
-	sumer2500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Sumer#Early_Dynastic_Period");
-	}
-	anatolia2500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.345), ((windowHeight - (contentHeight))/2) + (contentHeight *.19), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(anatolia2500BCsprite);
-	anatolia2500BCsprite.mouseActive = true;
-	anatolia2500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Anatolia#Ancient_Near_East_(Bronze_and_Iron_Ages)");
-	}
-	canaan2500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.355), ((windowHeight - (contentHeight))/2) + (contentHeight *.31), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(canaan2500BCsprite);
-	canaan2500BCsprite.mouseActive = true;
-	canaan2500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Canaan#Middle_Bronze_Age");
-	}
-	egypt2500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.265), ((windowHeight - (contentHeight))/2) + (contentHeight *.455), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(egypt2500BCsprite);
-	egypt2500BCsprite.mouseActive = true;
-	egypt2500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Ancient_Egypt#Old_Kingdom_(2686%E2%80%932181_BC)");
-	}
-	
+	generateClickbox(.47,.31,"https://en.wikipedia.org/wiki/Sumer#Early_Dynastic_Period");
+	generateClickbox(.345,.19,"https://en.wikipedia.org/wiki/Anatolia#Ancient_Near_East_(Bronze_and_Iron_Ages)");
+	generateClickbox(.355,.31,"https://en.wikipedia.org/wiki/Canaan#Middle_Bronze_Age");
+	generateClickbox(.265,.455,"https://en.wikipedia.org/wiki/Ancient_Egypt#Old_Kingdom_(2686%E2%80%932181_BC)");	
 }
 function text1500BC() {
-	egypt1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.265), ((windowHeight - (contentHeight))/2) + (contentHeight *.465), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(egypt1500BCsprite);
-	egypt1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/New_Kingdom_of_Egypt");
-	}
-	canaan1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.346), ((windowHeight - (contentHeight))/2) + (contentHeight *.365), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(canaan1500BCsprite);
-	canaan1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Canaan#Late_Bronze_Age_cuneiform_(1500%E2%80%931000_BC)");
-	}
-	mitanni1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.405), ((windowHeight - (contentHeight))/2) + (contentHeight *.25), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(mitanni1500BCsprite);
-	mitanni1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Mitanni");
-	}
-	hettite1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.35), ((windowHeight - (contentHeight))/2) + (contentHeight *.15), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(hettite1500BCsprite);
-	hettite1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Hittites");
-	}
-	babylonia1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.492), ((windowHeight - (contentHeight))/2) + (contentHeight *.365), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(babylonia1500BCsprite);
-	babylonia1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Babylonia#Kassite_Dynasty,_1595%E2%80%931155_BC");
-	}
-	elam1500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.6), ((windowHeight - (contentHeight))/2) + (contentHeight *.45), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(elam1500BCsprite);
-	elam1500BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Elam#Middle_Elamite_period_(c.1500_%E2%80%93_c.1100_BC)");
-	}
+	generateClickbox(.265,.465,"https://en.wikipedia.org/wiki/New_Kingdom_of_Egypt");
+	generateClickbox(.346,.365,"https://en.wikipedia.org/wiki/Canaan#Late_Bronze_Age_cuneiform_(1500%E2%80%931000_BC)");
+	generateClickbox(.405,.25,"https://en.wikipedia.org/wiki/Mitanni");
+	generateClickbox(.35,.15,"https://en.wikipedia.org/wiki/Hittites");
+	generateClickbox(.492,.365,"https://en.wikipedia.org/wiki/Babylonia#Kassite_Dynasty,_1595%E2%80%931155_BC");
+	generateClickbox(.6,.45,"https://en.wikipedia.org/wiki/Elam#Middle_Elamite_period_(c.1500_%E2%80%93_c.1100_BC)");
 }
 function text1000BC() {
-	egypt1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.27), ((windowHeight - (contentHeight))/2) + (contentHeight *.468), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(egypt1000BCsprite);
-	egypt1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Third_Intermediate_Period_of_Egypt");
-	}
-	isreal1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.33), ((windowHeight - (contentHeight))/2) + (contentHeight *.42), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(isreal1000BCsprite);
-	isreal1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/History_of_ancient_Israel_and_Judah#Iron_Age_I_(1200%E2%80%931000_BCE)");
-	}
-	phonicia1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.333), ((windowHeight - (contentHeight))/2) + (contentHeight *.275), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(phonicia1000BCsprite);
-	phonicia1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Phoenicia#High_point:_1200%E2%80%93800_BC");
-	}
-	hettite1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.332), ((windowHeight - (contentHeight))/2) + (contentHeight *.2), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(hettite1000BCsprite);
-	hettite1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Syro-Hittite_states");
-	}
-	urartu1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.42), ((windowHeight - (contentHeight))/2) + (contentHeight *.175), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(urartu1000BCsprite);
-	urartu1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Urartu#Origins");
-	}
-	assyria1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.45), ((windowHeight - (contentHeight))/2) + (contentHeight *.25), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(assyria1000BCsprite);
-	assyria1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Assyria#Assyria_during_the_Bronze_Age_Collapse,_1055%E2%80%93936_BC");
-	}
-	assyria1000BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.45), ((windowHeight - (contentHeight))/2) + (contentHeight *.25), contentWidth * clickboxSize, contentWidth * clickboxSize);
-	textBoxes.add(assyria1000BCsprite);
-	assyria1000BCsprite.onMousePressed = function() {
-		window.open("https://en.wikipedia.org/wiki/Assyria#Assyria_during_the_Bronze_Age_Collapse,_1055%E2%80%93936_BC");
-	}
-	// Resume here
+	generateClickbox(.27,.468,"https://en.wikipedia.org/wiki/Third_Intermediate_Period_of_Egypt");
+	generateClickbox(.33,.42,"https://en.wikipedia.org/wiki/History_of_ancient_Israel_and_Judah#Iron_Age_I_(1200%E2%80%931000_BCE)");
+	generateClickbox(.333,.275,"https://en.wikipedia.org/wiki/Phoenicia#High_point:_1200%E2%80%93800_BC");
+	generateClickbox(.332,.2,"https://en.wikipedia.org/wiki/Syro-Hittite_states");
+	generateClickbox(.42,.175,"https://en.wikipedia.org/wiki/Urartu#Origins");
+	generateClickbox(.45,.25,"https://en.wikipedia.org/wiki/Assyria#Assyria_during_the_Bronze_Age_Collapse,_1055%E2%80%93936_BC");
+	// Resume here, need arabian kingdoms
 	
 }
 		// replace with for loop & 3 input function? - x coordinate y coordinate - hyperlink
 		// doesn't matter if new sprites have same name, they can have different links
-function removeText() {
-	textBoxes.removeSprites();
-}
 
 function mapStateSetter(timePeriodNum) { //Sets image holder 'timePeriod' to image permanents, based on timePeriodNum
 	switch (timePeriodNum) {
@@ -234,32 +146,6 @@ function mapStateSetter(timePeriodNum) { //Sets image holder 'timePeriod' to ima
 	}
 }
 
-function checkAspectRatio() {												 // Checks Aspect Ratio and sets boolean isWide for use in generateTimelineDetection 
-	if (windowWidth/windowHeight >= 1920/1080) {  		 // Checks if display is wider than image
-		isWide = true;
-	} else if (windowWidth/windowHeight < 1920/1080) { // Checks if display is taller than image
-		isWide = false;
-	}
-}
-
-
-function drawMapsWithAspectRatio() { 								 // Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
-	checkAspectRatio();
-	drawMap(timePeriod);
-}
-
-function drawMap(timePeriod) { 																														// Calls images to fit inside a wider window
-	image(baseMap, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);		// Static Base Map
-	image(timelineUI, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler); // Static Timeline UI
-	image(timePeriod, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler); // Sets time period image based on timePeriod
-}
-
-function cursorTracking() { // Tracks Cursor
-	fill(255,0,0,70);
-	ellipse(mouseX, mouseY, 20, 20);
-}
-
-
 function generateTimelineDetection() { // Declares all sprites and enables click detection
 	let timelineSprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(timelineX+0*timelineInterval), ((windowHeight - (contentHeight))/2) + (contentHeight * timelineY), contentWidth * clickboxSize, contentWidth * clickboxSize); // 3500 BC
 	timelineSprite.mouseActive = true;
@@ -267,7 +153,8 @@ function generateTimelineDetection() { // Declares all sprites and enables click
 	timePeriodClickBoxes.add(timelineSprite);
 		console.log("3500BC");
 		removeText();
-		text3500BC();
+		//generateClickbox(.273, .6, "https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
+		text3500BC();  //this shit works put this back if it breaks
 		timePeriodNum = 0;
 	}
 	let bc2500sprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(timelineX+1*timelineInterval), ((windowHeight - (contentHeight))/2) + (contentHeight * timelineY), contentWidth * clickboxSize, contentWidth * clickboxSize); // 2500 BC
@@ -360,19 +247,47 @@ function generateTimelineDetection() { // Declares all sprites and enables click
 	}
 }
 
-function aspectScaler() {
-	if (isWide == true) {
-		wideAspectScaler = 1920/1080;											//wideAspectScaler is multiplied against baseAspect in most functions, 
-		tallAspectScaler = 1;															//results in windowHeight * 1920/1080 or windowWidth * 1,
-		baseAspect = windowHeight;												//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
-	} else {
-		wideAspectScaler = 1;															//tallAspectScaler multiplied against baseAspect as well 
-		tallAspectScaler = 1080/1920;											//results in windowHeight * 1 or windowWidth * 1080/1920
-		baseAspect = windowWidth;													//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
+function cursorTracking() { 				// Tracks Cursor
+	fill(255,0,0,70);
+	ellipse(mouseX, mouseY, 20, 20);
+}
+
+function removeText() {						// Removes clickboxes from previous map states
+	textBoxes.removeSprites();
+}
+
+function checkAspectRatio() {												 			// Checks Aspect Ratio and sets boolean isWide for use in generateTimelineDetection 
+	if (windowWidth/windowHeight >= 1920/1080) {  		 								// Checks if display is wider than image
+		isWide = true;
+	} else if (windowWidth/windowHeight < 1920/1080) {									// Checks if display is taller than image
+		isWide = false;
 	}
 }
 
-function contentSize() {
+function aspectScaler() {																// Sets wideAspectScaler & tallAspectScaler based on isWide and isTall
+	if (isWide == true) {
+		wideAspectScaler = 1920/1080;													//wideAspectScaler is multiplied against baseAspect in most functions, 
+		tallAspectScaler = 1;															//results in windowHeight * 1920/1080 or windowWidth * 1,
+		baseAspect = windowHeight;														//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
+	} else {
+		wideAspectScaler = 1;															//tallAspectScaler multiplied against baseAspect as well 
+		tallAspectScaler = 1080/1920;													//results in windowHeight * 1 or windowWidth * 1080/1920
+		baseAspect = windowWidth;														//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
+	}
+}
+
+function contentSize() {																// Sets contentWidth && contentHeight so that the image is always displayed at a 1920 x 1080 aspect ratio 
 	contentWidth = baseAspect * wideAspectScaler;
 	contentHeight = baseAspect * tallAspectScaler;
+}
+
+function drawMapsWithAspectRatio() { 								 					// Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
+	checkAspectRatio();
+	drawMap(timePeriod);
+}
+
+function drawMap(timePeriod) { 																														// Calls images to fit inside a wider window
+	image(baseMap, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Base Map
+	image(timelineUI, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Timeline UI
+	image(timePeriod, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Sets time period image based on timePeriod
 }
