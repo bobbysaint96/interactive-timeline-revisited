@@ -1,13 +1,13 @@
-let baseMap; 													// Stores empty map with oceans
-let timelineUI; 												// Stores timeline layer with year numbers and markings
+let baseMap; // Stores empty map with oceans
+let timelineUI; // Stores timeline layer with year numbers and markings
 let BC3500, BC2500, BC1500, BC1000, BC500, BC200, BC30, AD200, AD500, AD750, AD979, AD1215, AD1453; // variables for storing time period images
-let timePeriod; 												// holds current image year image (temporarily holds BC3500, BC2500, BC1500...)
-let timePeriodNum; 												// holds the current time period the switch statement should use for output, with 3500 BC starting as zero (0,1,2,3...)
-let timelineX, timelineY, timelineInterval, clickboxSize; 		// holds placement values for timeline clickboxes
-let isWide; 													// used for logic statements to test if screen is taller/wider than 1920x1080
-let wideAspectScaler, tallAspectScaler; 						// multipliers attached to draw functions that adjust image width/height & sprite x/y to fit inside of windows
-let baseAspect; 												// variable used by aspectScaler(); to store whether to use windowWidth or windowHeight in initial scaling
-let contentWidth, contentHeight; 								//variables used to display the physical dimensions of scaled content
+let timePeriod; // holds current image year image (temporarily holds BC3500, BC2500, BC1500...)
+let timePeriodNum; // holds the current time period the switch statement should use for output, with 3500 BC starting as zero (0,1,2,3...)
+let timelineX, timelineY, timelineInterval, clickboxSize; // holds placement values for timeline clickboxes
+let isWide; // used for logic statements to test if screen is taller/wider than 1920x1080
+let wideAspectScaler, tallAspectScaler; // multipliers attached to draw functions that adjust image width/height & sprite x/y to fit inside of windows
+let baseAspect; // variable used by aspectScaler(); to store whether to use windowWidth or windowHeight in initial scaling
+let contentWidth, contentHeight; //variables used to display the physical dimensions of scaled content
 
 // Loads images into permanent variables
 function preload() {
@@ -24,51 +24,46 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	imageMode(CENTER);
 	rectMode(CENTER);
-	checkAspectRatio(); 														//sets isWide to true/false based on window size
-	aspectScaler(); 															//sets variables wideAspectScaler, tallAspectScaler, and baseAspect
-	contentSize();																//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
+	checkAspectRatio(); 								//sets isWide to true/false based on window size
+	aspectScaler(); 										//sets variables wideAspectScaler, tallAspectScaler, and baseAspect
+	contentSize();											//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
 	
-	timePeriodClickBoxes = new Group(); 										// Group for time period clickboxes along timeline
-	textBoxes = new Group();													// Group for all text boxes, used by removeText to wipe entire sprite group
+	timePeriodClickBoxes = new Group(); // Group for time period clickboxes along timeline
+	textBoxes = new Group();						// Group for all text boxes, used by removeText to wipe entire sprite group
 	
-	timePeriodNum = 0; 															// Sets time period to initial state (3500BC)
-	timePeriod = BC3500; 														// sets initial image to (BC3500)
+	timePeriodNum = 0; 									// Sets time period to initial state (3500BC)
+	timePeriod = BC3500; 								// sets initial image to (BC3500)
 	
 	console.log("isWide = " + isWide);																// information on aspect ratio relative to 1920x1080p
 	console.log("window: " +windowWidth+ "x" +windowHeight);					// gives device browser, image, and device dimensions
-	console.log("image: " +timePeriod.width+ "x" +timePeriod.height);			// windowWidth shows effective usable window space, timeperiod.width shows image base scaling, displaywidth shows width of screen overall
+	console.log("image: " +timePeriod.width+ "x" +timePeriod.height);	// windowWidth shows effective usable window space, timeperiod.width shows image base scaling, displaywidth shows width of screen overall
 	console.log("screen: " +displayWidth+ "x" +displayHeight); 
 	
-	timelineX = 0.1562;															//variable setting intial timeline X pos
-	timelineY = 0.895; 															//variable setting initial timeline Y pos
-	timelineInterval = 0.0578; 													//variable used to space out timeline
-	clickboxSize = 0.04;														//Size of clickboxes
+	timelineX = 0.1562;									//variable setting intial timeline X pos
+	timelineY = 0.895; 									//variable setting initial timeline Y pos
+	timelineInterval = 0.0578; 					//variable used to space out timeline
+	clickboxSize = 0.04;								//Size of clickboxes
 	
-	generateTimelineDetection();												//generates timeline sprites & calls for text box creation
-	text3500BC();																// draws initial text boxes	
+	generateTimelineDetection();				//generates timeline sprites & calls for text box creation
+	text3500BC();												// draws initial text boxes	
 }
 
-function draw() { 																// Runs Constantly
-	//contentSize(); 															//could be used resizing dynamically windowResized()
-	mapStateSetter(timePeriodNum); 												// Sets images and dialogues
+function draw() { // Runs Constantly
+	//contentSize(); //could be used resizing dynamically windowResized()
+	mapStateSetter(timePeriodNum); // Sets images and dialogues
 	
-	background(0); 																// Clears previous image states & cursor trail
-	drawMapsWithAspectRatio(); 													// Determines screen aspect ratio and draws map + timeline + countries
+	background(0); // Clears previous image states & cursor trail
+	drawMapsWithAspectRatio(); // Determines screen aspect ratio and draws map + timeline + countries
 	
 
-	cursorTracking(); 															// shows cursor with transparent highlight
+	cursorTracking(); // shows cursor with transparent highlight
 	
-	//drawSprites();															// used for displaying clickboxes
+	//drawSprites();								// use for displaying clickboxes
 }
 
 // -------------------------------------------------------- Call Functions ---------------------------------------------------
 
 //could these have the same name with different number inside () to be used as a loop
-
-//function generateClickbox() {
-//
-//}
-
 function text3500BC() {
 	egypt3500BCsprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(.273), ((windowHeight - (contentHeight))/2) + (contentHeight *.6), contentWidth * clickboxSize, contentWidth * clickboxSize);
 	textBoxes.add(egypt3500BCsprite);
@@ -191,6 +186,9 @@ function text1000BC() {
 }
 		// replace with for loop & 3 input function? - x coordinate y coordinate - hyperlink
 		// doesn't matter if new sprites have same name, they can have different links
+function removeText() {
+	textBoxes.removeSprites();
+}
 
 function mapStateSetter(timePeriodNum) { //Sets image holder 'timePeriod' to image permanents, based on timePeriodNum
 	switch (timePeriodNum) {
@@ -235,6 +233,32 @@ function mapStateSetter(timePeriodNum) { //Sets image holder 'timePeriod' to ima
 			break;
 	}
 }
+
+function checkAspectRatio() {												 // Checks Aspect Ratio and sets boolean isWide for use in generateTimelineDetection 
+	if (windowWidth/windowHeight >= 1920/1080) {  		 // Checks if display is wider than image
+		isWide = true;
+	} else if (windowWidth/windowHeight < 1920/1080) { // Checks if display is taller than image
+		isWide = false;
+	}
+}
+
+
+function drawMapsWithAspectRatio() { 								 // Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
+	checkAspectRatio();
+	drawMap(timePeriod);
+}
+
+function drawMap(timePeriod) { 																														// Calls images to fit inside a wider window
+	image(baseMap, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);		// Static Base Map
+	image(timelineUI, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler); // Static Timeline UI
+	image(timePeriod, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler); // Sets time period image based on timePeriod
+}
+
+function cursorTracking() { // Tracks Cursor
+	fill(255,0,0,70);
+	ellipse(mouseX, mouseY, 20, 20);
+}
+
 
 function generateTimelineDetection() { // Declares all sprites and enables click detection
 	let timelineSprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(timelineX+0*timelineInterval), ((windowHeight - (contentHeight))/2) + (contentHeight * timelineY), contentWidth * clickboxSize, contentWidth * clickboxSize); // 3500 BC
@@ -336,47 +360,19 @@ function generateTimelineDetection() { // Declares all sprites and enables click
 	}
 }
 
-function cursorTracking() { 				// Tracks Cursor
-	fill(255,0,0,70);
-	ellipse(mouseX, mouseY, 20, 20);
-}
-
-function removeText() {						// Removes clickboxes from previous map states
-	textBoxes.removeSprites();
-}
-
-function checkAspectRatio() {												 			// Checks Aspect Ratio and sets boolean isWide for use in generateTimelineDetection 
-	if (windowWidth/windowHeight >= 1920/1080) {  		 								// Checks if display is wider than image
-		isWide = true;
-	} else if (windowWidth/windowHeight < 1920/1080) {									// Checks if display is taller than image
-		isWide = false;
-	}
-}
-
-function aspectScaler() {																// Sets wideAspectScaler & tallAspectScaler based on isWide and isTall
+function aspectScaler() {
 	if (isWide == true) {
-		wideAspectScaler = 1920/1080;													//wideAspectScaler is multiplied against baseAspect in most functions, 
+		wideAspectScaler = 1920/1080;											//wideAspectScaler is multiplied against baseAspect in most functions, 
 		tallAspectScaler = 1;															//results in windowHeight * 1920/1080 or windowWidth * 1,
-		baseAspect = windowHeight;														//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
+		baseAspect = windowHeight;												//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
 	} else {
 		wideAspectScaler = 1;															//tallAspectScaler multiplied against baseAspect as well 
-		tallAspectScaler = 1080/1920;													//results in windowHeight * 1 or windowWidth * 1080/1920
-		baseAspect = windowWidth;														//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
+		tallAspectScaler = 1080/1920;											//results in windowHeight * 1 or windowWidth * 1080/1920
+		baseAspect = windowWidth;													//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
 	}
 }
 
-function contentSize() {																// Sets contentWidth && contentHeight so that the image is always displayed at a 1920 x 1080 aspect ratio 
+function contentSize() {
 	contentWidth = baseAspect * wideAspectScaler;
 	contentHeight = baseAspect * tallAspectScaler;
-}
-
-function drawMapsWithAspectRatio() { 								 					// Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
-	checkAspectRatio();
-	drawMap(timePeriod);
-}
-
-function drawMap(timePeriod) { 																														// Calls images to fit inside a wider window
-	image(baseMap, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Base Map
-	image(timelineUI, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Timeline UI
-	image(timePeriod, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Sets time period image based on timePeriod
 }
