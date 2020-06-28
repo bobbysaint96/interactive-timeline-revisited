@@ -8,6 +8,7 @@ let isWide; 																							// used for logic statements to test if scree
 let wideAspectScaler, tallAspectScaler; 																// multipliers attached to draw functions that adjust image width/height & sprite x/y to fit inside of windows
 let baseAspect; 																						// variable used by aspectScaler(); to store whether to use windowWidth or windowHeight in initial scaling
 let contentWidth, contentHeight; 																		// variables used to display the physical dimensions of scaled content
+let marginWidth, marginHeight;																			// stores size of margins
 
 function preload() {																					// Loads assets into variables
 	baseMap = loadImage('images/baseMap.png');
@@ -38,6 +39,7 @@ function setup() {
 }
 // ------------------------------------------- Draw function runs constantly, effectively the main in p5.js sketches ------------------------------------------------
 function draw() {
+	//add windowResize()
 	background(0); 																						// Clears cursor trail on margins
 	mapStateSetter(timePeriodNum); 																		// Sets correct images to be run by drawMapsWithAspectRatio()
 	drawMapsWithAspectRatio(); 																			// Forces 1920x1080 aspect ratio -- Displays all images
@@ -93,15 +95,15 @@ function generateTimelineDetection() { 																	// Declares all sprites 
 		generateTimelineClickbox(x);
 	}
 }
-function generateTimelineClickbox(num) {																// Declares clickboxes for timeline below, x represents the x coordinate of the sprite, num represents the time period being represented if a sprite is clicked (0-12)
-	timelineSprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(timelineX+num*timelineInterval), ((windowHeight - (contentHeight))/2) + (contentHeight*timelineY), contentWidth*clickboxSize, contentWidth*clickboxSize); // 3500 BC
+function generateTimelineClickbox(n) {																// Declares clickboxes for timeline below, x represents the x coordinate of the sprite, num represents the time period being represented if a sprite is clicked (0-12)
+	timelineSprite = createSprite(marginWidth + (contentWidth)*(timelineX+timelineInterval*n), marginHeight + (contentHeight*timelineY), contentWidth*clickboxSize, contentWidth*clickboxSize); // 3500 BC
 	timelineSprite.mouseActive = true;
 	timelineSprite.onMouseReleased = function () {
 	timePeriodClickBoxes.add(timelineSprite);
-		console.log("time period "+num);
+		console.log("time period "+n);
 		removeText();
-		displayCorrectTextboxes(num);
-		timePeriodNum = num;
+		displayCorrectTextboxes(n);
+		timePeriodNum = n;
 	}
 }
 function removeText() {																					// Removes clickboxes from previous map states
@@ -130,20 +132,22 @@ function aspectScaler() {																				// Sets wideAspectScaler & tallAspe
 	}
 }
 function contentSize() {																				// Sets contentWidth && contentHeight so that the image is always displayed at a 1920 x 1080 aspect ratio 
-	contentWidth = baseAspect * wideAspectScaler;
-	contentHeight = baseAspect * tallAspectScaler;
+	contentWidth = baseAspect*wideAspectScaler;
+	contentHeight = baseAspect*tallAspectScaler;
+	marginWidth = (windowWidth-contentWidth)/2;
+	marginHeight = (windowHeight-contentHeight)/2;
 }
 function drawMapsWithAspectRatio() { 								 									// Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
 	checkAspectRatio();
 	drawMap(timePeriod);
 }
-function drawMap(timePeriod) { 																			// Calls images to fit inside a wider window
-	image(baseMap, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Base Map
-	image(timelineUI, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Static Timeline UI
-	image(timePeriod, windowWidth/2, windowHeight/2, baseAspect * wideAspectScaler, baseAspect * tallAspectScaler);									// Sets time period image based on timePeriod
+function drawMap(timePeriod) { 																			// Calls images to fit inside a wider window									// CAN WE REMOVE (TIMEPERIOD)??? LOOKS SUPER UNNECESSARY // SHOULD THIS BE CONTENTWIDTH?
+	image(baseMap, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Static Base Map
+	image(timelineUI, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Static Timeline UI
+	image(timePeriod, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Sets time period image based on timePeriod
 }
 function generateClickbox(x, y, z) {
-	sprite = createSprite(((windowWidth - (contentWidth))/2) + (contentWidth)*(x), ((windowHeight - (contentHeight))/2) + (contentHeight *y), contentWidth * clickboxSize, contentWidth * clickboxSize);
+	sprite = createSprite(marginWidth + (contentWidth)*(x), marginHeight + contentHeight*y, contentWidth * clickboxSize, contentWidth * clickboxSize);
 	textBoxes.add(sprite);
 	sprite.mouseActive = true;
 	sprite.onMouseReleased = function() {
@@ -193,6 +197,9 @@ function displayCorrectTextboxes(stateNum) {
 			//textAD1435();
 			break;
 	}
+}
+function mousePressed() {																				// Used for development purposes, logs coordinates used for generateClickbox()
+	console.log((mouseX-marginWidth)/contentWidth, (mouseY-marginHeight)/contentHeight);
 }
 function textBC3500() {
 	generateClickbox(.273,.6,"https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
