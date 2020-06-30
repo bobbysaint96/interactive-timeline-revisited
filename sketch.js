@@ -26,10 +26,11 @@ function preload() {																					// Loads assets into variables
 	BC500 = loadImage('images/BC500.png');
 }
 function setup() {
-	timePeriodClickBoxes = new Group(); 																// Group for time period clickboxes along timeline
-	textBoxes = new Group();																			// Group for all text boxes, used by removeText to wipe entire sprite group
+	timePeriodClickBoxes = new Group(); 																// Group for time period clickboxes, timePeriodClickBoxes.removeSprites(); to clear
+	textBoxes = new Group();																			// Group for all text boxes, textBoxes.removeSprites(); to clear
 	timePeriod = BC3500; 																				// sets initial image to (BC3500)
 	createCanvas(windowWidth, windowHeight);
+	noCursor();
 	imageMode(CENTER);
 	rectMode(CENTER);
 	checkAspectRatio(); 																				//sets isWide to true/false based on window size
@@ -37,22 +38,22 @@ function setup() {
 	contentSize();																						//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
 	generateTimelineDetection();																		// Generates initial timeline clickboxes
 	textBC3500();																						// Draws initial state clickboxes
-	//mapStateSetter(timePeriodNum); 																		// Sets correct images to be run by drawMapsWithAspectRatio()
-	//drawMapsWithAspectRatio(); 																			// Forces 1920x1080 aspect ratio -- Displays all images
-
 }
 // ------------------------------------------- Draw function runs constantly, effectively the main in p5.js sketches ------------------------------------------------
 function draw() {
-	resizeCanvas(windowWidth, windowHeight);
+	resizeCanvas(windowWidth, windowHeight);															// constantly adjusts canvas size to match window/browser size
 	background(0); 																						// Clears cursor trail on margins
 	mapStateSetter(timePeriodNum); 																		// Sets correct images to be run by drawMapsWithAspectRatio()
 	drawMapsWithAspectRatio(); 																			// Forces 1920x1080 aspect ratio -- Displays all images
 	cursorTracking(); 																					// Shows Cursor
-	drawSprites();																					// used for displaying clickboxes
+	//drawSprites();																					// used for displaying clickboxes
 }
 // -------------------------------------------------------- Call Functions ---------------------------------------------------
 function windowResized() {
-	
+	timePeriodClickBoxes.removeSprites();
+	generateTimelineDetection();
+	textBoxes.removeSprites();
+	displayCorrectTextboxes(timePeriodNum);
 }
 function mapStateSetter(stateNum) { 																	//Sets image holder 'timePeriod' to image permanents, based on timePeriodNum, literally all this does is prime the appropriate image to display
 	switch (stateNum) {
@@ -98,23 +99,20 @@ function mapStateSetter(stateNum) { 																	//Sets image holder 'timePe
 	}
 }
 function generateTimelineDetection() { 																	// Declares all sprites and enables click detection
-	for(x=0; x<12; x++){
+	for(x=0; x<13; x++){
 		generateTimelineClickbox(x);
 	}
 }
 function generateTimelineClickbox(n) {																	// Declares clickboxes for timeline below, x represents the x coordinate of the sprite, num represents the time period being represented if a sprite is clicked (0-12)
-	timelineSprite = createSprite(marginWidth + (contentWidth)*(timelineX+timelineInterval*n), marginHeight + (contentHeight*timelineY), contentWidth*clickboxSize, contentWidth*clickboxSize); // 3500 BC
-	timelineSprite.mouseActive = true;
-	timelineSprite.onMouseReleased = function () {
-	timePeriodClickBoxes.add(timelineSprite);
+	sprite = createSprite(marginWidth + (contentWidth)*(timelineX+timelineInterval*n), marginHeight + (contentHeight*timelineY), contentWidth*clickboxSize, contentWidth*clickboxSize); // 3500 BC
+	timePeriodClickBoxes.add(sprite);
+	sprite.mouseActive = true;
+	sprite.onMouseReleased = function () {
 		console.log("time period "+n);
-		removeText();
+		textBoxes.removeSprites();
 		displayCorrectTextboxes(n);
 		timePeriodNum = n;
 	}
-}
-function removeText() {																					// Removes clickboxes from previous map states
-	textBoxes.removeSprites();
 }
 function cursorTracking() { 																			// Tracks Cursor
 	fill(255,0,0,70);
@@ -239,6 +237,3 @@ function textBC1000() {
 	// Resume here, need arabian kingdoms, babylonia ...
 	
 }
-
-
-// convert timelineX/Y/interval & clickboxSize to fractions of contentWidth/Height
