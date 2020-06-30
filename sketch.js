@@ -10,6 +10,12 @@ let baseAspect; 																						// variable used by aspectScaler(); to sto
 let contentWidth, contentHeight; 																		// variables used to display the physical dimensions of scaled content
 let marginWidth, marginHeight;																			// stores size of margins
 
+timePeriodNum = 0; 																					// Sets time period to initial state (3500BC)
+timelineX = 0.1562;																					//variable setting intial timeline X pos
+timelineY = 0.895; 																					//variable setting initial timeline Y pos
+timelineInterval = 0.0578; 																			//variable used to space out timeline
+clickboxSize = 0.045;																				//Size of clickboxes	
+
 function preload() {																					// Loads assets into variables
 	baseMap = loadImage('images/baseMap.png');
 	timelineUI = loadImage('images/timelineUI.png');
@@ -20,33 +26,34 @@ function preload() {																					// Loads assets into variables
 	BC500 = loadImage('images/BC500.png');
 }
 function setup() {
+	timePeriodClickBoxes = new Group(); 																// Group for time period clickboxes along timeline
+	textBoxes = new Group();																			// Group for all text boxes, used by removeText to wipe entire sprite group
+	timePeriod = BC3500; 																				// sets initial image to (BC3500)
 	createCanvas(windowWidth, windowHeight);
 	imageMode(CENTER);
 	rectMode(CENTER);
 	checkAspectRatio(); 																				//sets isWide to true/false based on window size
 	aspectScaler(); 																					//sets variables wideAspectScaler, tallAspectScaler, and baseAspect
 	contentSize();																						//sets contentWidth and contentHeight (dimensions of scaled image) using wideAspectScaler, tallAspectScaler, and baseAspect
-	timePeriodClickBoxes = new Group(); 																// Group for time period clickboxes along timeline
-	textBoxes = new Group();																			// Group for all text boxes, used by removeText to wipe entire sprite group
-	timePeriodNum = 0; 																					// Sets time period to initial state (3500BC)
-	timePeriod = BC3500; 																				// sets initial image to (BC3500)
-	timelineX = 0.1562;																					//variable setting intial timeline X pos
-	timelineY = 0.895; 																					//variable setting initial timeline Y pos
-	timelineInterval = 0.0578; 																			//variable used to space out timeline
-	clickboxSize = 0.04;																				//Size of clickboxes
 	generateTimelineDetection();																		// Generates initial timeline clickboxes
-	textBC3500();																						// Draws initial state clickboxes	
+	textBC3500();																						// Draws initial state clickboxes
+	//mapStateSetter(timePeriodNum); 																		// Sets correct images to be run by drawMapsWithAspectRatio()
+	//drawMapsWithAspectRatio(); 																			// Forces 1920x1080 aspect ratio -- Displays all images
+
 }
 // ------------------------------------------- Draw function runs constantly, effectively the main in p5.js sketches ------------------------------------------------
 function draw() {
-	//add windowResize()
+	resizeCanvas(windowWidth, windowHeight);
 	background(0); 																						// Clears cursor trail on margins
 	mapStateSetter(timePeriodNum); 																		// Sets correct images to be run by drawMapsWithAspectRatio()
 	drawMapsWithAspectRatio(); 																			// Forces 1920x1080 aspect ratio -- Displays all images
 	cursorTracking(); 																					// Shows Cursor
-	//drawSprites();																					// used for displaying clickboxes
-}										
+	drawSprites();																					// used for displaying clickboxes
+}
 // -------------------------------------------------------- Call Functions ---------------------------------------------------
+function windowResized() {
+	
+}
 function mapStateSetter(stateNum) { 																	//Sets image holder 'timePeriod' to image permanents, based on timePeriodNum, literally all this does is prime the appropriate image to display
 	switch (stateNum) {
 		case 0:
@@ -95,7 +102,7 @@ function generateTimelineDetection() { 																	// Declares all sprites 
 		generateTimelineClickbox(x);
 	}
 }
-function generateTimelineClickbox(n) {																// Declares clickboxes for timeline below, x represents the x coordinate of the sprite, num represents the time period being represented if a sprite is clicked (0-12)
+function generateTimelineClickbox(n) {																	// Declares clickboxes for timeline below, x represents the x coordinate of the sprite, num represents the time period being represented if a sprite is clicked (0-12)
 	timelineSprite = createSprite(marginWidth + (contentWidth)*(timelineX+timelineInterval*n), marginHeight + (contentHeight*timelineY), contentWidth*clickboxSize, contentWidth*clickboxSize); // 3500 BC
 	timelineSprite.mouseActive = true;
 	timelineSprite.onMouseReleased = function () {
@@ -114,21 +121,21 @@ function cursorTracking() { 																			// Tracks Cursor
 	ellipse(mouseX, mouseY, 20, 20);
 }
 function checkAspectRatio() {												 							// Checks Aspect Ratio and sets boolean isWide for use in generateTimelineDetection 
-	if (windowWidth/windowHeight >= 1920/1080) {  		 								// Checks if display is wider than image
+	if (windowWidth/windowHeight >= 1920/1080) {  		 												// Checks if display is wider than image
 		isWide = true;
-	} else if (windowWidth/windowHeight < 1920/1080) {									// Checks if display is taller than image
+	} else if (windowWidth/windowHeight < 1920/1080) {													// Checks if display is taller than image
 		isWide = false;
 	}
 }
 function aspectScaler() {																				// Sets wideAspectScaler & tallAspectScaler based on isWide and isTall
 	if (isWide == true) {
-		wideAspectScaler = 1920/1080;													//wideAspectScaler is multiplied against baseAspect in most functions, 
-		tallAspectScaler = 1;															//results in windowHeight * 1920/1080 or windowWidth * 1,
-		baseAspect = windowHeight;														//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
+		wideAspectScaler = 1920/1080;																	//wideAspectScaler is multiplied against baseAspect in most functions, 
+		tallAspectScaler = 1;																			//results in windowHeight * 1920/1080 or windowWidth * 1,
+		baseAspect = windowHeight;																		//wideAspectScaler * baseAspect will always give the effective Width of the content scaled to 1920x1080p
 	} else {
-		wideAspectScaler = 1;															//tallAspectScaler multiplied against baseAspect as well 
-		tallAspectScaler = 1080/1920;													//results in windowHeight * 1 or windowWidth * 1080/1920
-		baseAspect = windowWidth;														//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
+		wideAspectScaler = 1;																			//tallAspectScaler multiplied against baseAspect as well 
+		tallAspectScaler = 1080/1920;																	//results in windowHeight * 1 or windowWidth * 1080/1920
+		baseAspect = windowWidth;																		//tallAspectScaler * baseAspect will always give the effective height of the content scaled to 1920x1080p
 	}
 }
 function contentSize() {																				// Sets contentWidth && contentHeight so that the image is always displayed at a 1920 x 1080 aspect ratio 
@@ -139,12 +146,14 @@ function contentSize() {																				// Sets contentWidth && contentHeigh
 }
 function drawMapsWithAspectRatio() { 								 									// Determines aspect ratio with checkAspectRatio(); and calls proper drawMap function
 	checkAspectRatio();
+	aspectScaler();
+	contentSize();
 	drawMap(timePeriod);
 }
-function drawMap(timePeriod) { 																			// Calls images to fit inside a wider window									// CAN WE REMOVE (TIMEPERIOD)??? LOOKS SUPER UNNECESSARY // SHOULD THIS BE CONTENTWIDTH?
-	image(baseMap, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Static Base Map
-	image(timelineUI, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Static Timeline UI
-	image(timePeriod, windowWidth/2, windowHeight/2, contentWidth, contentHeight);									// Sets time period image based on timePeriod
+function drawMap(timePeriod) { 																			// Calls images to fit inside a wider window
+	image(baseMap, windowWidth/2, windowHeight/2, contentWidth, contentHeight);							// Static Base Map
+	image(timelineUI, windowWidth/2, windowHeight/2, contentWidth, contentHeight);						// Static Timeline UI
+	image(timePeriod, windowWidth/2, windowHeight/2, contentWidth, contentHeight);						// Sets time period image based on timePeriod
 }
 function generateClickbox(x, y, z) {
 	sprite = createSprite(marginWidth + (contentWidth)*(x), marginHeight + contentHeight*y, contentWidth * clickboxSize, contentWidth * clickboxSize);
@@ -202,7 +211,7 @@ function mousePressed() {																				// Used for development purposes, l
 	console.log((mouseX-marginWidth)/contentWidth, (mouseY-marginHeight)/contentHeight);
 }
 function textBC3500() {
-	generateClickbox(.273,.6,"https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
+	generateClickbox(.283,.58,"https://en.wikipedia.org/wiki/Ancient_Egyptian_agriculture");
 	generateClickbox(.505,.33,"https://en.wikipedia.org/wiki/Akkadian_Empire");
 	generateClickbox(.52,.405,"https://en.wikipedia.org/wiki/Sumer#Uruk_period");
 }
@@ -230,3 +239,6 @@ function textBC1000() {
 	// Resume here, need arabian kingdoms, babylonia ...
 	
 }
+
+
+// convert timelineX/Y/interval & clickboxSize to fractions of contentWidth/Height
